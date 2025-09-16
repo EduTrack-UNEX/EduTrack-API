@@ -1,0 +1,86 @@
+name: build, release & deploy
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Cache de dependências Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+            
+      - name: Build do artefato .jar
+        run: mvn clean package -DskipTests=false
+
+      - name: Upload do artefato de build
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/
+
+  package_and_publish:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      version: ${{ steps.generate_version.outputs.version }}
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download do artefato de build
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: target/
+
+      - name: Gerar versão
+        id: generate_version
+        uses: ./.github/actions/semantic-versioning
+
+      - name: Build da imagem Docker para publicação
+        run: docker build -t edutrack:${{ steps.generate_version.outputs.version }}
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+      - name: Criar tag e publicar imagem Docker
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/edutrack
+          echo "Enviando imagem versionada: $IMAGE_NAME:${{ steps.generate_version.outputs.version }}"
+          docker tag edutrack:${{ steps.generate_version.outputs.version }} $IMAGE_NAME:${{ steps.generate_version.outputs.version }}
+          docker push $IMAGE_NAME:${{ steps.generate_version.outputs.version }}
+          
+          echo "Enviando imagem mais recente: $IMAGE_NAME:latest"
+          docker tag edutrack:${{ steps.generate_version.outputs.version }} $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:latest
