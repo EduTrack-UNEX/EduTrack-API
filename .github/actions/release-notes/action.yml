@@ -1,0 +1,33 @@
+name: "Gerar Notas de Release"
+description: "Cria notas de release com base nos commits entre as tags."
+inputs:
+  version:
+    description: "A versão da nova release."
+    required: true
+  previous-tag:
+    description: "A tag anterior para calcular a diferença."
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: Criar notas
+      id: generate
+      shell: bash
+      run: |
+        VERSION=${{ inputs.version }}
+        PREVIOUS_TAG=$(git describe --tags --match "v*" --abbrev=0 HEAD~1 || echo "")
+        
+        if [ -z "$PREVIOUS_TAG" ]; then
+            RELEASE_NOTES=$(git log --oneline --pretty=format:"* %s" HEAD)
+        else
+            RELEASE_NOTES=$(git log $PREVIOUS_TAG..v$VERSION --oneline --pretty=format:"* %s")
+        fi
+
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        echo "## O que mudou?" >> $GITHUB_ENV
+        echo "" >> $GITHUB_ENV
+        echo "$RELEASE_NOTES" >> $GITHUB_ENV
+        echo "" >> $GITHUB_ENV
+        echo "---" >> $GITHUB_ENV
+        echo "*Esta release foi gerada automaticamente.*" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV

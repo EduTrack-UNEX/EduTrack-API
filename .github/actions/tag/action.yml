@@ -1,0 +1,19 @@
+name: "Criar e Enviar Tag"
+description: "Cria uma nova tag no repositório local e a envia para o remoto, com verificação de existência."
+inputs:
+  version:
+    description: "A versão da tag a ser criada (ex: '1.2.3')."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Criar tag e enviar
+      shell: bash
+      run: |
+        VERSION=${{ inputs.version }}
+        if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          echo "A tag v$VERSION já existe. Pulando a criação."
+        else
+          git tag v$VERSION
+          git push origin v$VERSION
+        fi
