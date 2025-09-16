@@ -66,7 +66,7 @@ jobs:
         uses: ./.github/actions/semantic-versioning
 
       - name: Build da imagem Docker para publicação
-        run: docker build -t edutrack:${{ steps.generate_version.outputs.version }}
+        run: docker build -t edutrack:${{ steps.generate_version.outputs.version }} .
 
       - name: Login no Docker Hub
         uses: docker/login-action@v2
