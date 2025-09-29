@@ -1,6 +1,14 @@
 spring:
   application:
     name=edutrack
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/edutrack_db}
+    username: ${DB_USER:admin}
+    password: ${DB_PASSWORD:edutrack123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.MySQLDialect
 
 server:
   servlet:
