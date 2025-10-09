@@ -10,16 +10,16 @@ public class UserMapper {
 
     public User toUser(UserRequestDto data) {
         return new User.UserBuilder()
-                .comName(data.nome())
-                .comEmail(data.email())
-                .comPassword(data.password())
+                .withName(data.name())
+                .withEmail(data.email())
+                .withPassword(data.password())
                 .build();
     }
 
     public UserResponseDto toUserResponseDto(User data) {
         return new UserResponseDto(
                 data.getId(),
-                data.getNome(),
+                data.getName(),
                 data.getEmail()
         );
     }

@@ -14,7 +14,7 @@ public class User {
     private int id;
 
     @Column(name = "name",nullable = false)
-    private String nome;
+    private String name;
 
     @Column(name= "email", nullable = false,unique = true)
     private String email;
@@ -35,12 +35,12 @@ public class User {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String nome) {
+        this.name = nome;
     }
 
     public String getEmail() {
@@ -64,32 +64,28 @@ public class User {
         private String email;
         private String password;
 
-        public UserBuilder comName(String name){
+        public UserBuilder withName(String name){
             this.name = name;
             return this;
         }
 
-        public UserBuilder comEmail(String email){
+        public UserBuilder withEmail(String email){
             this.email = email;
             return this;
         }
 
-        public UserBuilder comPassword(String password){
+        public UserBuilder withPassword(String password){
             this.password = password;
             return this;
         }
 
         public User build(){
             User user = new User();
-            user.setNome(this.name);
+            user.setName(this.name);
             user.setEmail(this.email);
             user.setPassword(this.password);
             return user;
         }
     }
 
-    public void atualizarCom(UserRequestDto data){
-        this.nome = data.nome();
-        this.email = data.email();
-    }
 }
