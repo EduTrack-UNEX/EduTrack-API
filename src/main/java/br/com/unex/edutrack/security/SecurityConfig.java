@@ -1,4 +1,4 @@
-package br.com.unex.edutrack.config;
+package br.com.unex.edutrack.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

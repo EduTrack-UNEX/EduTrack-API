@@ -1,7 +1,7 @@
 package br.com.unex.edutrack.service;
 
-import br.com.unex.edutrack.dto.user.UserRequestDto;
-import br.com.unex.edutrack.dto.user.UserResponseDto;
+import br.com.unex.edutrack.dto.user.user.UserRequestDto;
+import br.com.unex.edutrack.dto.user.user.UserResponseDto;
 import br.com.unex.edutrack.mapper.user.UserMapper;
 import br.com.unex.edutrack.model.User;
 import br.com.unex.edutrack.repository.UserRepository;
@@ -31,6 +31,5 @@ public class UserService {
         User persistedUser = userRepository.save(user);
         return userMapper.toUserResponseDto(persistedUser);
     }
-
 
 }
