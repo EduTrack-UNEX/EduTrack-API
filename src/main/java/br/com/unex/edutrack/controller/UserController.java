@@ -1,8 +1,10 @@
 package br.com.unex.edutrack.controller;
 
-import br.com.unex.edutrack.dto.user.UserRequestDto;
-import br.com.unex.edutrack.dto.user.UserResponseDto;
+import br.com.unex.edutrack.dto.ApiResponse;
+import br.com.unex.edutrack.dto.user.user.UserRequestDto;
+import br.com.unex.edutrack.dto.user.user.UserResponseDto;
 import br.com.unex.edutrack.service.UserService;
+import br.com.unex.edutrack.util.ResponseUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +23,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto request){
+    public ResponseEntity<ApiResponse<UserResponseDto>> createUser(@Valid @RequestBody UserRequestDto request){
         UserResponseDto user = userService.saveUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        return ResponseUtil.created("Usuario Criado com sucesso",user);
     }
 
 }

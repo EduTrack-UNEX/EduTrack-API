@@ -1,7 +1,7 @@
 package br.com.unex.edutrack.mapper.user;
 
-import br.com.unex.edutrack.dto.user.UserRequestDto;
-import br.com.unex.edutrack.dto.user.UserResponseDto;
+import br.com.unex.edutrack.dto.user.user.UserRequestDto;
+import br.com.unex.edutrack.dto.user.user.UserResponseDto;
 import br.com.unex.edutrack.model.User;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,9 @@ public class UserMapper {
         return new UserResponseDto(
                 data.getId(),
                 data.getName(),
-                data.getEmail()
+                data.getEmail(),
+                data.getCreatedAt(),
+                data.getUpdatedAt()
         );
     }
 }

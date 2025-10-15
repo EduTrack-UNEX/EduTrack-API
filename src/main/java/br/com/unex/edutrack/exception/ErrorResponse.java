@@ -7,5 +7,5 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ErrorResponse(int status, String message, Map<String, String> errors, LocalDateTime timestamp) {
+public record ErrorResponse(int code, String message, Map<String, String> errors, LocalDateTime timestamp) {
 }

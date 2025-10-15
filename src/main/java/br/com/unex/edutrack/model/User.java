@@ -1,7 +1,10 @@
 package br.com.unex.edutrack.model;
 
-import br.com.unex.edutrack.dto.user.UserRequestDto;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -22,6 +25,13 @@ public class User {
     @Column(name= "password",nullable = false)
     private String password;
 
+    @Column(name = "created_at", updatable = false, insertable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", insertable = false)
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     public User() {
     }
@@ -57,6 +67,22 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public static class UserBuilder{
