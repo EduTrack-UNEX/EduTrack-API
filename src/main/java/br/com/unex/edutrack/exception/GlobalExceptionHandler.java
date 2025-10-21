@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
-                "Violação de integridade: dados já existentes ou inválidos",
+                "Este e-mail já está cadastrado.",
                 null,
                 LocalDateTime.now()
         );
