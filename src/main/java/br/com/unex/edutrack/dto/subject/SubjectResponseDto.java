@@ -1,14 +1,12 @@
-package br.com.unex.edutrack.dto.user.user;
+package br.com.unex.edutrack.dto.subject;
 
 import java.time.LocalDateTime;
 
-public record UserResponseDto(
+public record SubjectResponseDto(
         int id,
         String name,
-        String email,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 
 ) {
-
 }
