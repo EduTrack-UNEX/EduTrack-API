@@ -9,7 +9,7 @@ public class ResponseUtil {
     private ResponseUtil() {}
 
     public static <T> ResponseEntity<ApiResponse<T>> ok(String message, T data) {
-        return ResponseEntity.ok(new ApiResponse<>(message, data));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(message, data));
     }
 
     public static <T> ResponseEntity<ApiResponse<T>> created(String message, T data) {
