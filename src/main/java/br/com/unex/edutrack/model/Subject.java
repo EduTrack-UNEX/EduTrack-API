@@ -19,10 +19,10 @@ public class Subject {
     private String name;
 
     @Column(name = "average",nullable = false)
-    private float average = 0;
+    private float average;
 
     @Column(name = "progress", nullable = false)
-    private int progress = 0;
+    private int progress;
 
     @Column(name = "created_at",nullable = false,updatable = false)
     @CreationTimestamp

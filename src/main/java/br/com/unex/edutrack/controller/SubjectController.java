@@ -7,10 +7,9 @@ import br.com.unex.edutrack.service.SubjectService;
 import br.com.unex.edutrack.util.ResponseUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/v1/subjects")
 @RestController
@@ -27,5 +26,23 @@ public class SubjectController {
         SubjectResponseDto subject = subjectService.saveSubject(request);
         return ResponseUtil.created("Disciplina Criada com sucesso",subject);
 
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<SubjectResponseDto>> findSubjectById(@Valid @PathVariable int id) {
+        SubjectResponseDto subject = subjectService.getSubjectId(id);
+        return ResponseUtil.ok("Disciplina encontrado com sucesso",subject);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<SubjectResponseDto>>> findSubjectAll(){
+        List<SubjectResponseDto> subjects = subjectService.getSubjects();
+        return ResponseUtil.ok("Lista de disciplina retornada com sucesso",subjects);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSubject (@PathVariable int id){
+        subjectService.deleteSubjectById(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 public record SubjectResponseDto(
         int id,
         String name,
+        int progress,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        float average
 
 ) {
 }
