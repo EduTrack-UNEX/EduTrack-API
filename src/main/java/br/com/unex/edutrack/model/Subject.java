@@ -19,10 +19,10 @@ public class Subject {
     private String name;
 
     @Column(name = "average",nullable = false)
-    private Float average;
+    private float average;
 
     @Column(name = "progress", nullable = false)
-    private int progress = 0;
+    private int progress;
 
     @Column(name = "created_at",nullable = false,updatable = false)
     @CreationTimestamp
@@ -56,11 +56,11 @@ public class Subject {
         this.name = name;
     }
 
-    public Float getAverage() {
+    public float getAverage() {
         return average;
     }
 
-    public void setAverage(Float average) {
+    public void setAverage(float average) {
         this.average = average;
     }
 
@@ -98,7 +98,7 @@ public class Subject {
 
     public static class SubjectBuilder{
         private String name;
-        private Float average;
+        private float average;
         private int progress;
 
         public SubjectBuilder withName(String name){
@@ -106,7 +106,7 @@ public class Subject {
             return this;
         }
 
-        public SubjectBuilder withAverage(Float average){
+        public SubjectBuilder withAverage(float average){
             this.average = average;
             return this;
         }

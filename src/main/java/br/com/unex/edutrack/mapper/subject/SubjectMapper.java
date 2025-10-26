@@ -18,8 +18,10 @@ public class SubjectMapper {
         return new SubjectResponseDto(
                 data.getId(),
                 data.getName(),
+                data.getProgress(),
                 data.getCreatedAt(),
-                data.getUpdatedAt()
+                data.getUpdatedAt(),
+                data.getAverage()
         );
     }
 }
