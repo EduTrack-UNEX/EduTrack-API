@@ -31,13 +31,13 @@ public class SubjectController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SubjectResponseDto>> findSubjectById(@Valid @PathVariable int id) {
         SubjectResponseDto subject = subjectService.getSubjectId(id);
-        return ResponseUtil.ok("Disciplina encontrado com sucesso",subject);
+        return ResponseUtil.ok("Disciplina encontrada com sucesso",subject);
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<SubjectResponseDto>>> findSubjectAll(){
         List<SubjectResponseDto> subjects = subjectService.getSubjects();
-        return ResponseUtil.ok("Lista de disciplina retornada com sucesso",subjects);
+        return ResponseUtil.ok("Lista de disciplinas retornada com sucesso",subjects);
     }
 
     @DeleteMapping("/{id}")

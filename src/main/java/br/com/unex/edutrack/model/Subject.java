@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class Subject {
 
     @Id
-    @Column(name = "id",updatable = false,nullable = false,unique = false)
+    @Column(name = "id",updatable = false,nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 

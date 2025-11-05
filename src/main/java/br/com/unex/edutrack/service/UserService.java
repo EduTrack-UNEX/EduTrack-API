@@ -5,6 +5,7 @@ import br.com.unex.edutrack.dto.user.user.UserResponseDto;
 import br.com.unex.edutrack.mapper.user.UserMapper;
 import br.com.unex.edutrack.model.User;
 import br.com.unex.edutrack.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,4 +33,7 @@ public class UserService {
         return userMapper.toUserResponseDto(persistedUser);
     }
 
+    public User getAuthenticatedUser(){
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
 }
