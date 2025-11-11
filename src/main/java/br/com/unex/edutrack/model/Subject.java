@@ -4,7 +4,11 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "subjects")
@@ -18,8 +22,8 @@ public class Subject {
     @Column(name = "name",nullable = false)
     private String name;
 
-    @Column(name = "average",nullable = false)
-    private float average;
+    @Column(name = "average",nullable = false,precision = 4,scale = 2)
+    private BigDecimal average;
 
     @Column(name = "progress", nullable = false)
     private int progress;
@@ -35,6 +39,9 @@ public class Subject {
     @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> toDoList = new ArrayList<>();
 
     public Subject(){
 
@@ -56,11 +63,11 @@ public class Subject {
         this.name = name;
     }
 
-    public float getAverage() {
+    public BigDecimal getAverage() {
         return average;
     }
 
-    public void setAverage(float average) {
+    public void setAverage(BigDecimal average) {
         this.average = average;
     }
 
@@ -96,9 +103,14 @@ public class Subject {
         this.user = user;
     }
 
+    public List<Task> getToDoList() {
+        return Collections.unmodifiableList(this.toDoList);
+    }
+
+
     public static class SubjectBuilder{
         private String name;
-        private float average;
+        private BigDecimal average;
         private int progress;
 
         public SubjectBuilder withName(String name){
@@ -106,7 +118,7 @@ public class Subject {
             return this;
         }
 
-        public SubjectBuilder withAverage(float average){
+        public SubjectBuilder withAverage(BigDecimal average){
             this.average = average;
             return this;
         }
@@ -124,5 +136,39 @@ public class Subject {
             return subject;
         }
 
+    }
+
+    public void addTask (Task task){
+        this.toDoList.add(task);
+        task.setSubject(this);
+        this.calculateAverage();
+    }
+
+    private void calculateAverage(){
+
+        if (this.toDoList == null || this.toDoList.isEmpty()) {
+            this.average = BigDecimal.ZERO;
+        }
+        else {
+            Double sum = this.toDoList.stream().map(Task::getGrade).mapToDouble(BigDecimal::doubleValue).sum();
+            int size = this.toDoList.size();
+            this.average = BigDecimal.valueOf(sum/size);
+        }
+    }
+
+    public void updateProgress(Subject subject){
+        int totalTasks = subject.getToDoList().size();
+
+        if (totalTasks == 0) {
+            subject.setProgress(0);
+            return;
+        }
+
+        long completedTasks = subject.getToDoList()
+                .stream()
+                .filter(Task::isCompleted)
+                .count();
+        int progress = (int) ((completedTasks * 100.0) / totalTasks);
+        subject.setProgress(progress);
     }
 }

@@ -3,7 +3,10 @@ package br.com.unex.edutrack.controller;
 import br.com.unex.edutrack.dto.ApiResponse;
 import br.com.unex.edutrack.dto.subject.SubjectRequestDto;
 import br.com.unex.edutrack.dto.subject.SubjectResponseDto;
+import br.com.unex.edutrack.dto.task.TaskRequestDto;
+import br.com.unex.edutrack.dto.task.TaskResponseDto;
 import br.com.unex.edutrack.service.SubjectService;
+
 import br.com.unex.edutrack.util.ResponseUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,14 @@ public class SubjectController {
         SubjectResponseDto subject = subjectService.saveSubject(request);
         return ResponseUtil.created("Disciplina Criada com sucesso",subject);
 
+    }
+
+    @PostMapping("{subjectId}/tasks")
+    public ResponseEntity<ApiResponse<TaskResponseDto>> createTaskAndSubject(
+            @PathVariable int subjectId,
+            @Valid @RequestBody TaskRequestDto request){
+        TaskResponseDto task = subjectService.saveTaskAndSubject(subjectId,request);
+        return ResponseUtil.created("Tarefa Criada com sucesso",task);
     }
 
     @GetMapping("/{id}")

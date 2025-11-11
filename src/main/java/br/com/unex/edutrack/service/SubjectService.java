@@ -2,14 +2,20 @@ package br.com.unex.edutrack.service;
 
 import br.com.unex.edutrack.dto.subject.SubjectRequestDto;
 import br.com.unex.edutrack.dto.subject.SubjectResponseDto;
+import br.com.unex.edutrack.dto.task.TaskRequestDto;
+import br.com.unex.edutrack.dto.task.TaskResponseDto;
 import br.com.unex.edutrack.exception.ForbiddenException;
 import br.com.unex.edutrack.mapper.subject.SubjectMapper;
 
+import br.com.unex.edutrack.mapper.task.TaskMapper;
 import br.com.unex.edutrack.model.Subject;
+import br.com.unex.edutrack.model.Task;
 import br.com.unex.edutrack.model.User;
 import br.com.unex.edutrack.repository.SubjectRepository;
+import br.com.unex.edutrack.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,16 +25,20 @@ public class SubjectService {
     private final SubjectRepository subjectRepository;
     private final SubjectMapper subjectMapper;
     private final UserService userService;
+    private final TaskMapper taskMapper;
+    private final TaskRepository taskRepository;
 
 
-    public SubjectService(SubjectRepository subjectRepository, SubjectMapper subjectMapper, UserService userService) {
+    public SubjectService(SubjectRepository subjectRepository, SubjectMapper subjectMapper,
+                          UserService userService, TaskMapper taskMapper, TaskRepository taskRepository) {
         this.subjectRepository = subjectRepository;
         this.subjectMapper = subjectMapper;
         this.userService = userService;
+        this.taskMapper = taskMapper;
+        this.taskRepository = taskRepository;
     }
 
-
-
+    @Transactional
     public SubjectResponseDto saveSubject(SubjectRequestDto data){
 
         User user = userService.getAuthenticatedUser();
@@ -36,6 +46,25 @@ public class SubjectService {
         subject.setUser(user);
         Subject persistedSubject = subjectRepository.save(subject);
         return subjectMapper.toSubjectResponseDto(persistedSubject);
+    }
+
+    @Transactional
+    public TaskResponseDto saveTaskAndSubject(int subjectId, TaskRequestDto data) {
+
+        User user = userService.getAuthenticatedUser();
+
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com o ID: " + subjectId));
+        if (subject.getUser().getId() != user.getId()) {
+            throw new ForbiddenException("Você não tem permissão para visualizar esta disciplina");
+        }
+
+        Task task = taskMapper.toTask(data);
+        subject.addTask(task);
+        taskRepository.save(task);
+        subject.updateProgress(subject);
+        subjectRepository.save(subject);
+        return taskMapper.toTaskResponseDto(task);
     }
 
     public List<SubjectResponseDto> getSubjects() {
@@ -58,6 +87,7 @@ public class SubjectService {
         return subjectMapper.toSubjectResponseDto(subject);
     }
 
+    @Transactional
     public void deleteSubjectById(int id) {
         User user = userService.getAuthenticatedUser();
 
