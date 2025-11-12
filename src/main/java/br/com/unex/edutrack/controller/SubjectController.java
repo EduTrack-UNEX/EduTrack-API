@@ -3,6 +3,7 @@ package br.com.unex.edutrack.controller;
 import br.com.unex.edutrack.dto.ApiResponse;
 import br.com.unex.edutrack.dto.subject.SubjectRequestDto;
 import br.com.unex.edutrack.dto.subject.SubjectResponseDto;
+import br.com.unex.edutrack.dto.task.TaskEditRequestDto;
 import br.com.unex.edutrack.dto.task.TaskRequestDto;
 import br.com.unex.edutrack.dto.task.TaskResponseDto;
 import br.com.unex.edutrack.service.SubjectService;
@@ -61,7 +62,7 @@ public class SubjectController {
     public ResponseEntity<ApiResponse<TaskResponseDto>> updateTask(
             @PathVariable int subjectId,
             @PathVariable int taskId,
-            @Valid @RequestBody TaskRequestDto request) {
+            @Valid @RequestBody TaskEditRequestDto request) {
 
         TaskResponseDto task = subjectService.updateTask(subjectId,taskId,request);
         return ResponseUtil.ok("Tarefa atualizada com sucesso.",task);

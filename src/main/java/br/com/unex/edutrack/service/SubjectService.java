@@ -2,6 +2,7 @@ package br.com.unex.edutrack.service;
 
 import br.com.unex.edutrack.dto.subject.SubjectRequestDto;
 import br.com.unex.edutrack.dto.subject.SubjectResponseDto;
+import br.com.unex.edutrack.dto.task.TaskEditRequestDto;
 import br.com.unex.edutrack.dto.task.TaskRequestDto;
 import br.com.unex.edutrack.dto.task.TaskResponseDto;
 import br.com.unex.edutrack.exception.ForbiddenException;
@@ -102,7 +103,7 @@ public class SubjectService {
     }
 
     @Transactional
-    public TaskResponseDto updateTask(int subjectId,int taskId,TaskRequestDto data){
+    public TaskResponseDto updateTask(int subjectId, int taskId, TaskEditRequestDto data){
 
         User user = userService.getAuthenticatedUser();
 

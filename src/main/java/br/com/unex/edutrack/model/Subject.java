@@ -1,5 +1,6 @@
 package br.com.unex.edutrack.model;
 
+import br.com.unex.edutrack.dto.task.TaskEditRequestDto;
 import br.com.unex.edutrack.dto.task.TaskRequestDto;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -147,14 +148,16 @@ public class Subject {
         this.updateProgress();
     }
 
-    public Task updateWith(int taskId,TaskRequestDto dto){
+    public Task updateWith(int taskId, TaskEditRequestDto dto){
         Task task = this.toDoList.stream().filter(t -> t.getId() == taskId)
                 .findFirst()
                 .orElseThrow(()-> new EntityNotFoundException("Tarefa não encontrada com esse id: "+taskId));
         task.setName(dto.name());
         task.setGrade(dto.grade());
+        task.setCompleted(dto.isCompleted());
         task.setDueDate(dto.dueDate());
         this.calculateAverage();
+        this.updateProgress();
         return task;
     }
 
