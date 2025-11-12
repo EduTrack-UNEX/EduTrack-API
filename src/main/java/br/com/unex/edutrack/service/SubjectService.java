@@ -48,25 +48,6 @@ public class SubjectService {
         return subjectMapper.toSubjectResponseDto(persistedSubject);
     }
 
-    @Transactional
-    public TaskResponseDto saveTaskAndSubject(int subjectId, TaskRequestDto data) {
-
-        User user = userService.getAuthenticatedUser();
-
-        Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com o ID: " + subjectId));
-        if (subject.getUser().getId() != user.getId()) {
-            throw new ForbiddenException("Você não tem permissão para visualizar esta disciplina");
-        }
-
-        Task task = taskMapper.toTask(data);
-        subject.addTask(task);
-        taskRepository.save(task);
-        subject.updateProgress(subject);
-        subjectRepository.save(subject);
-        return taskMapper.toTaskResponseDto(task);
-    }
-
     public List<SubjectResponseDto> getSubjects() {
         User user = userService.getAuthenticatedUser();
         return subjectRepository.findAllByUser(user)
@@ -92,13 +73,48 @@ public class SubjectService {
         User user = userService.getAuthenticatedUser();
 
         Subject subject = subjectRepository.findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com o ID: " + id));
 
         if(subject.getUser().getId() != user.getId()) {
             throw new ForbiddenException("Você não tem permissão para excluir esta disciplina");
         }
 
         subjectRepository.delete(subject);
+    }
+
+    @Transactional
+    public TaskResponseDto saveTask(int subjectId, TaskRequestDto data) {
+
+        User user = userService.getAuthenticatedUser();
+
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com o ID: " + subjectId));
+        if (subject.getUser().getId() != user.getId()) {
+            throw new ForbiddenException("Você não tem permissão para visualizar esta disciplina");
+        }
+
+        Task task = taskMapper.toTask(data);
+        task.setSubject(subject);
+        Task savedTask = taskRepository.save(task);
+        subject.addTask(savedTask);
+        subjectRepository.save(subject);
+        return taskMapper.toTaskResponseDto(savedTask);
+    }
+
+    @Transactional
+    public TaskResponseDto updateTask(int subjectId,int taskId,TaskRequestDto data){
+
+        User user = userService.getAuthenticatedUser();
+
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(()-> new EntityNotFoundException("Disciplina não encontrada com o ID: " + subjectId));
+        if (subject.getUser().getId() != user.getId()) {
+            throw new ForbiddenException("Você não tem permissão para visualizar esta disciplina");
+        }
+
+        Task task = subject.updateWith(taskId,data);
+        subjectRepository.save(subject);
+        return taskMapper.toTaskResponseDto(task);
     }
 
 

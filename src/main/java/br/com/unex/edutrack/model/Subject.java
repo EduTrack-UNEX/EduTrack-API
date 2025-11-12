@@ -1,10 +1,12 @@
 package br.com.unex.edutrack.model;
 
+import br.com.unex.edutrack.dto.task.TaskRequestDto;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,33 +144,48 @@ public class Subject {
         this.toDoList.add(task);
         task.setSubject(this);
         this.calculateAverage();
+        this.updateProgress();
+    }
+
+    public Task updateWith(int taskId,TaskRequestDto dto){
+        Task task = this.toDoList.stream().filter(t -> t.getId() == taskId)
+                .findFirst()
+                .orElseThrow(()-> new EntityNotFoundException("Tarefa não encontrada com esse id: "+taskId));
+        task.setName(dto.name());
+        task.setGrade(dto.grade());
+        task.setDueDate(dto.dueDate());
+        this.calculateAverage();
+        return task;
     }
 
     private void calculateAverage(){
 
         if (this.toDoList == null || this.toDoList.isEmpty()) {
             this.average = BigDecimal.ZERO;
-        }
-        else {
-            Double sum = this.toDoList.stream().map(Task::getGrade).mapToDouble(BigDecimal::doubleValue).sum();
-            int size = this.toDoList.size();
-            this.average = BigDecimal.valueOf(sum/size);
-        }
-    }
-
-    public void updateProgress(Subject subject){
-        int totalTasks = subject.getToDoList().size();
-
-        if (totalTasks == 0) {
-            subject.setProgress(0);
             return;
         }
 
-        long completedTasks = subject.getToDoList()
+        BigDecimal sum = this.toDoList.stream()
+                .map(Task::getGrade)
+                .reduce(BigDecimal.ZERO,BigDecimal::add);
+
+        BigDecimal size = new BigDecimal(this.toDoList.size());
+        this.average = sum.divide(size,2, RoundingMode.HALF_UP);
+    }
+
+    private void updateProgress(){
+        int totalTasks = this.toDoList.size();
+
+        if (totalTasks == 0) {
+            this.setProgress(0);
+            return;
+        }
+
+        long completedTasks = this.toDoList
                 .stream()
                 .filter(Task::isCompleted)
                 .count();
         int progress = (int) ((completedTasks * 100.0) / totalTasks);
-        subject.setProgress(progress);
+        this.setProgress(progress);
     }
 }

@@ -1,5 +1,6 @@
 package br.com.unex.edutrack.model;
 
+import br.com.unex.edutrack.dto.task.TaskRequestDto;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -43,6 +44,7 @@ public class Task {
 
     public Task() {
     }
+
 
     public int getId() {
         return id;

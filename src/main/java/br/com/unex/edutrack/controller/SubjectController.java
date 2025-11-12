@@ -31,14 +31,6 @@ public class SubjectController {
 
     }
 
-    @PostMapping("{subjectId}/tasks")
-    public ResponseEntity<ApiResponse<TaskResponseDto>> createTaskAndSubject(
-            @PathVariable int subjectId,
-            @Valid @RequestBody TaskRequestDto request){
-        TaskResponseDto task = subjectService.saveTaskAndSubject(subjectId,request);
-        return ResponseUtil.created("Tarefa Criada com sucesso",task);
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SubjectResponseDto>> findSubjectById(@Valid @PathVariable int id) {
         SubjectResponseDto subject = subjectService.getSubjectId(id);
@@ -55,5 +47,23 @@ public class SubjectController {
     public ResponseEntity<Void> deleteSubject (@PathVariable int id){
         subjectService.deleteSubjectById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{subjectId}/task")
+    public ResponseEntity<ApiResponse<TaskResponseDto>> createTask(
+            @PathVariable int subjectId,
+            @Valid @RequestBody TaskRequestDto request){
+        TaskResponseDto task = subjectService.saveTask(subjectId,request);
+        return ResponseUtil.created("Tarefa Criada com sucesso",task);
+    }
+
+    @PatchMapping("/{subjectId}/tasks/{taskId}")
+    public ResponseEntity<ApiResponse<TaskResponseDto>> updateTask(
+            @PathVariable int subjectId,
+            @PathVariable int taskId,
+            @Valid @RequestBody TaskRequestDto request) {
+
+        TaskResponseDto task = subjectService.updateTask(subjectId,taskId,request);
+        return ResponseUtil.ok("Tarefa atualizada com sucesso.",task);
     }
 }
