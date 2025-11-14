@@ -1,7 +1,6 @@
 package br.com.unex.edutrack.model;
 
 import br.com.unex.edutrack.dto.task.TaskEditRequestDto;
-import br.com.unex.edutrack.dto.task.TaskRequestDto;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -190,5 +189,16 @@ public class Subject {
                 .count();
         int progress = (int) ((completedTasks * 100.0) / totalTasks);
         this.setProgress(progress);
+    }
+
+    public void removeTask(int taskId) {
+        Task task = this.toDoList.stream()
+                .filter(t -> t.getId() == taskId)
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Tarefa não encontrada: " + taskId));
+
+        this.toDoList.remove(task);
+        this.calculateAverage();
+        this.updateProgress();
     }
 }
