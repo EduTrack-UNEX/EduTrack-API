@@ -14,10 +14,15 @@ import br.com.unex.edutrack.model.Task;
 import br.com.unex.edutrack.model.User;
 import br.com.unex.edutrack.repository.SubjectRepository;
 import br.com.unex.edutrack.repository.TaskRepository;
+import br.com.unex.edutrack.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -28,15 +33,17 @@ public class SubjectService {
     private final UserService userService;
     private final TaskMapper taskMapper;
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
 
     public SubjectService(SubjectRepository subjectRepository, SubjectMapper subjectMapper,
-                          UserService userService, TaskMapper taskMapper, TaskRepository taskRepository) {
+                          UserService userService, TaskMapper taskMapper, TaskRepository taskRepository, UserRepository userRepository) {
         this.subjectRepository = subjectRepository;
         this.subjectMapper = subjectMapper;
         this.userService = userService;
         this.taskMapper = taskMapper;
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -118,5 +125,61 @@ public class SubjectService {
         return taskMapper.toTaskResponseDto(task);
     }
 
+    @Transactional(readOnly = true)
+    public Page<TaskResponseDto> getTasksBySubject(int subjectId, Pageable pageable) {
+        var user = userService.getAuthenticatedUser();
+
+        var subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com o ID: " + subjectId));
+
+        if (subject.getUser().getId() != user.getId()) {
+            throw new EntityNotFoundException("Disciplina não encontrada ou não pertence ao usuário.");
+        }
+
+        return taskRepository.findBySubjectOrderByIsCompletedAscIdAsc(subject, pageable)
+                .map(taskMapper::toTaskResponseDto);
+    }
+
+    @Transactional
+    public void deleteTask(int subjectId, int taskId) {
+
+        var user = userService.getAuthenticatedUser();
+
+        var subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada."));
+
+        if (subject.getUser().getId() != user.getId()) {
+            throw new EntityNotFoundException("Disciplina não encontrada ou não pertence ao usuário.");
+        }
+
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Tarefa não encontrada."));
+
+        if (task.getSubject().getId() != subjectId) {
+            throw new EntityNotFoundException("Tarefa não pertence à disciplina informada.");
+        }
+
+        taskRepository.delete(task);
+
+        var tasks = taskRepository.findBySubjectOrderByIsCompletedAscIdAsc(subject, Pageable.unpaged()).getContent();
+
+        if (tasks.isEmpty()) {
+            subject.setAverage(BigDecimal.ZERO);
+            subject.setProgress(0);
+        } else {
+            BigDecimal avg = tasks.stream()
+                    .map(Task::getGrade)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    .divide(BigDecimal.valueOf(tasks.size()), 2, RoundingMode.HALF_UP);
+
+            subject.setAverage(avg);
+
+            long completed = tasks.stream().filter(Task::isCompleted).count();
+            int progress = (int) ((completed * 100.0) / tasks.size());
+            subject.setProgress(progress);
+        }
+
+        subjectRepository.save(subject);
+    }
 
 }
