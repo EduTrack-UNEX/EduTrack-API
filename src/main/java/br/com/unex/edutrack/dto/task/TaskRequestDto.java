@@ -19,6 +19,5 @@ public record TaskRequestDto(
 
         @NotNull(message = "A data de vencimento é obrigatória")
         LocalDate dueDate
-
 ) {
 }
