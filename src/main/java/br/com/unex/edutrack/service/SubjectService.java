@@ -2,7 +2,6 @@ package br.com.unex.edutrack.service;
 
 import br.com.unex.edutrack.dto.subject.SubjectRequestDto;
 import br.com.unex.edutrack.dto.subject.SubjectResponseDto;
-import br.com.unex.edutrack.dto.task.TaskEditRequestDto;
 import br.com.unex.edutrack.dto.task.TaskRequestDto;
 import br.com.unex.edutrack.dto.task.TaskResponseDto;
 import br.com.unex.edutrack.exception.ForbiddenException;
@@ -14,10 +13,17 @@ import br.com.unex.edutrack.model.Task;
 import br.com.unex.edutrack.model.User;
 import br.com.unex.edutrack.repository.SubjectRepository;
 import br.com.unex.edutrack.repository.TaskRepository;
+import br.com.unex.edutrack.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -28,15 +34,18 @@ public class SubjectService {
     private final UserService userService;
     private final TaskMapper taskMapper;
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
 
     public SubjectService(SubjectRepository subjectRepository, SubjectMapper subjectMapper,
-                          UserService userService, TaskMapper taskMapper, TaskRepository taskRepository) {
+                          UserService userService, TaskMapper taskMapper, TaskRepository taskRepository,
+                          UserRepository userRepository) {
         this.subjectRepository = subjectRepository;
         this.subjectMapper = subjectMapper;
         this.userService = userService;
         this.taskMapper = taskMapper;
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -103,7 +112,7 @@ public class SubjectService {
     }
 
     @Transactional
-    public TaskResponseDto updateTask(int subjectId, int taskId, TaskEditRequestDto data){
+    public TaskResponseDto updateTask(int subjectId,int taskId,TaskRequestDto data){
 
         User user = userService.getAuthenticatedUser();
 
@@ -118,5 +127,18 @@ public class SubjectService {
         return taskMapper.toTaskResponseDto(task);
     }
 
+    @Transactional(readOnly = true)
+    public Page<TaskResponseDto> getTasksBySubject(int subjectId, Pageable pageable) {
+        var user = userService.getAuthenticatedUser();
 
+        var subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com o ID: " + subjectId));
+
+        if (subject.getUser().getId() != user.getId()) {
+            throw new EntityNotFoundException("Disciplina não encontrada ou não pertence ao usuário.");
+        }
+
+        return taskRepository.findBySubjectOrderByIsCompletedAscIdAsc(subject, pageable)
+                .map(taskMapper::toTaskResponseDto);
+    }
 }

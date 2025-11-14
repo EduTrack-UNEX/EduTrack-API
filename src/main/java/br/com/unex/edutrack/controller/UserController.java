@@ -6,7 +6,6 @@ import br.com.unex.edutrack.dto.user.user.UserResponseDto;
 import br.com.unex.edutrack.service.UserService;
 import br.com.unex.edutrack.util.ResponseUtil;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

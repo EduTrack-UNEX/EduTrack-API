@@ -3,13 +3,15 @@ package br.com.unex.edutrack.controller;
 import br.com.unex.edutrack.dto.ApiResponse;
 import br.com.unex.edutrack.dto.subject.SubjectRequestDto;
 import br.com.unex.edutrack.dto.subject.SubjectResponseDto;
-import br.com.unex.edutrack.dto.task.TaskEditRequestDto;
 import br.com.unex.edutrack.dto.task.TaskRequestDto;
 import br.com.unex.edutrack.dto.task.TaskResponseDto;
 import br.com.unex.edutrack.service.SubjectService;
 
 import br.com.unex.edutrack.util.ResponseUtil;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,9 +64,20 @@ public class SubjectController {
     public ResponseEntity<ApiResponse<TaskResponseDto>> updateTask(
             @PathVariable int subjectId,
             @PathVariable int taskId,
-            @Valid @RequestBody TaskEditRequestDto request) {
+            @Valid @RequestBody TaskRequestDto request) {
 
         TaskResponseDto task = subjectService.updateTask(subjectId,taskId,request);
         return ResponseUtil.ok("Tarefa atualizada com sucesso.",task);
+    }
+
+    @GetMapping("/{subjectId}/tasks")
+    public ResponseEntity<ApiResponse<Page<TaskResponseDto>>> listTasksBySubject(
+            @PathVariable int subjectId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TaskResponseDto> tasks = subjectService.getTasksBySubject(subjectId, pageable);
+        return ResponseUtil.ok("Tarefas da disciplina retornadas com sucesso", tasks);
     }
 }
