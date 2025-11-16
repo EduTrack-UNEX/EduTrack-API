@@ -7,17 +7,18 @@ import br.com.unex.edutrack.dto.task.TaskRequestDto;
 import br.com.unex.edutrack.dto.task.TaskResponseDto;
 import br.com.unex.edutrack.exception.ForbiddenException;
 import br.com.unex.edutrack.mapper.subject.SubjectMapper;
-
 import br.com.unex.edutrack.mapper.task.TaskMapper;
 import br.com.unex.edutrack.model.Subject;
 import br.com.unex.edutrack.model.Task;
 import br.com.unex.edutrack.model.User;
 import br.com.unex.edutrack.repository.SubjectRepository;
 import br.com.unex.edutrack.repository.TaskRepository;
+import br.com.unex.edutrack.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
@@ -28,15 +29,17 @@ public class SubjectService {
     private final UserService userService;
     private final TaskMapper taskMapper;
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
 
     public SubjectService(SubjectRepository subjectRepository, SubjectMapper subjectMapper,
-                          UserService userService, TaskMapper taskMapper, TaskRepository taskRepository) {
+                          UserService userService, TaskMapper taskMapper, TaskRepository taskRepository, UserRepository userRepository) {
         this.subjectRepository = subjectRepository;
         this.subjectMapper = subjectMapper;
         this.userService = userService;
         this.taskMapper = taskMapper;
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -90,16 +93,16 @@ public class SubjectService {
 
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com o ID: " + subjectId));
+
         if (subject.getUser().getId() != user.getId()) {
             throw new ForbiddenException("Você não tem permissão para visualizar esta disciplina");
         }
 
         Task task = taskMapper.toTask(data);
-        task.setSubject(subject);
-        Task savedTask = taskRepository.save(task);
-        subject.addTask(savedTask);
+        subject.addTask(task);
         subjectRepository.save(subject);
-        return taskMapper.toTaskResponseDto(savedTask);
+
+        return taskMapper.toTaskResponseDto(task);
     }
 
     @Transactional
@@ -118,5 +121,36 @@ public class SubjectService {
         return taskMapper.toTaskResponseDto(task);
     }
 
+    @Transactional(readOnly = true)
+    public Page<TaskResponseDto> getTasksBySubject(int subjectId, Pageable pageable) {
+        var user = userService.getAuthenticatedUser();
+
+        var subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com o ID: " + subjectId));
+
+        if (subject.getUser().getId() != user.getId()) {
+            throw new EntityNotFoundException("Disciplina não encontrada ou não pertence ao usuário.");
+        }
+
+        return taskRepository.findBySubjectOrderByIsCompletedAscIdAsc(subject, pageable)
+                .map(taskMapper::toTaskResponseDto);
+    }
+
+    @Transactional
+    public void deleteTask(int subjectId, int taskId) {
+
+        User user = userService.getAuthenticatedUser();
+
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada."));
+
+        if (subject.getUser().getId() != user.getId()) {
+            throw new EntityNotFoundException("Disciplina não encontrada ou não pertence ao usuário.");
+        }
+        
+        subject.removeTask(taskId);
+
+        subjectRepository.save(subject);
+    }
 
 }
