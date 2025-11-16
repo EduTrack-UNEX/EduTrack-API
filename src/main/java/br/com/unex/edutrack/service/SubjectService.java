@@ -132,7 +132,7 @@ public class SubjectService {
             throw new EntityNotFoundException("Disciplina não encontrada ou não pertence ao usuário.");
         }
 
-        return taskRepository.findBySubjectOrderByIsCompletedAscIdAsc(subject, pageable)
+        return taskRepository.findBySubjectOrderByIsCompletedDescIdAsc(subject, pageable)
                 .map(taskMapper::toTaskResponseDto);
     }
 

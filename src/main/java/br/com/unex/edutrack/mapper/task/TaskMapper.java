@@ -13,6 +13,7 @@ public class TaskMapper {
                 .withName(data.name())
                 .withGrade(data.grade())
                 .withDueData(data.dueDate())
+                .withIsCompleted(Boolean.TRUE.equals(data.isCompleted()))
                 .build();
     }
 

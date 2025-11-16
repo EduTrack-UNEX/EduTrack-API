@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task,Integer> {
-    Page<Task> findBySubjectOrderByIsCompletedAscIdAsc(Subject subject, Pageable pageable);
+    Page<Task> findBySubjectOrderByIsCompletedDescIdAsc(Subject subject, Pageable pageable);
 }
