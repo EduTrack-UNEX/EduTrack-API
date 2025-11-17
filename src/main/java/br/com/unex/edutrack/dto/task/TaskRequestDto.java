@@ -18,8 +18,6 @@ public record TaskRequestDto(
         BigDecimal grade,
 
         @NotNull(message = "A data de vencimento é obrigatória")
-        LocalDate dueDate,
-
-        Boolean isCompleted
+        LocalDate dueDate
 ) {
 }

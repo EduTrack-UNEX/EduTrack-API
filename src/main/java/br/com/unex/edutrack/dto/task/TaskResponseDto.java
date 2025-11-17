@@ -10,7 +10,7 @@ public record TaskResponseDto(
         int id,
         String name,
         BigDecimal grade,
-        Boolean isCompleted,
+        boolean isCompleted,
         LocalDate dueDate,
         LocalDateTime createdAt,
         LocalDateTime updatedAt

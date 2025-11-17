@@ -6,15 +6,18 @@ import br.com.unex.edutrack.model.Task;
 import br.com.unex.edutrack.repository.SubjectRepository;
 import br.com.unex.edutrack.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class TaskService {
 
     private final TaskRepository taskRepository;
     private final SubjectRepository subjectRepository;
+
+    public TaskService(TaskRepository taskRepository, SubjectRepository subjectRepository) {
+        this.taskRepository = taskRepository;
+        this.subjectRepository = subjectRepository;
+    }
 
     public TaskResponseDto getTaskDetails(Integer subjectId, Integer taskId, Integer userId) {
 
