@@ -41,7 +41,7 @@ public class User implements UserDetails {
     }
 
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
